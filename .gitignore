@@ -42,8 +42,11 @@
 # *.iml
 # *.ipr
 
-# CMake
-cmake-build-*/
+# 构建输出（build.ps1）
+build/
+
+# 构建脚本自动克隆的依赖
+deps/
 
 # Mongo Explorer plugin
 .idea/**/mongoSettings.xml

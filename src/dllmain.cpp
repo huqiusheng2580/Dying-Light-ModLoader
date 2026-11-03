@@ -2,14 +2,14 @@
 // Created by Seamus on 5/06/2026.
 //
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <Windows.h>
-#include <filesystem>
 #include <Xinput.h>
 
-import utils;
-import multiplayerHooks;
-import hooks;
-import loader;
+#include "utils.hpp"
+#include "config.hpp"
+#include "multiplayerHooks.hpp"
+#include "hooks.hpp"
 
 typedef DWORD (WINAPI *XInputGetCapabilities_t)(DWORD, DWORD, XINPUT_CAPABILITIES*);
 typedef DWORD (WINAPI *XInputGetState_t)(DWORD, XINPUT_STATE*);
@@ -55,11 +55,7 @@ extern "C" DWORD WINAPI Proxy_XInputSetState(DWORD dwUserIndex, XINPUT_VIBRATION
 
 bool isDebug()
 {
-    std::string debugFile = utils::GetGameDir() + "\\mods\\debug.txt";
-    if (std::filesystem::exists(debugFile)) {
-        return true;
-    }
-    return false;
+    return config::getBool(config::Get(), "general", "debug", false);
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID)

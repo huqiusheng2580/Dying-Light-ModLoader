@@ -1,29 +1,33 @@
 //
 // Created by Seamus on 29/06/2026.
 //
-module;
+#pragma once
+
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <Windows.h>
-#include <Print>
-#include "src/globals.hpp"
+#include <print>
+#include "globals.hpp"
 #include "SafetyHook.hpp"
-export module hooks;
+#include "safetyhook_easy_shim.hpp"
 
-import loader;
-import utils;
+#include "loader.hpp"
+#include "utils.hpp"
 
-const char* packLoaderLoadAOB = "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 55 41 54 41 56 48 8D 6C 24 D9 48 81 EC 90 00 00 00";
-const char* rpaczAOB = "85 C0 74 10 FF C7 48 83 C6 08 83 FF 02";
+namespace hooks {
+    inline const char* packLoaderLoadAOB = "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 55 41 54 41 56 48 8D 6C 24 D9 48 81 EC 90 00 00 00";
+    inline const char* rpaczAOB = "85 C0 74 10 FF C7 48 83 C6 08 83 FF 02";
 
-export namespace hooks {
-    safetyhook::InlineHook hAddSource;
-    safetyhook::InlineHook hInitGameScript;
-    safetyhook::InlineHook hPackLoaderLoad;
+    inline safetyhook::InlineHook hAddSource;
+    inline safetyhook::InlineHook hInitGameScript;
+    inline safetyhook::InlineHook hPackLoaderLoad;
 
-    bool __fastcall hkAddSource(const char* path, unsigned int flags){
+    inline bool __fastcall hkAddSource(const char* path, unsigned int flags){
         return hAddSource.call<bool>(path, flags);
     }
 
-    bool __fastcall hkPackLoaderLoad(void* pRuntime, const char* path, void** outPack,
+    inline bool __fastcall hkPackLoaderLoad(void* pRuntime, const char* path, void** outPack,
         EIsGlobalPack isGlobal, EIsContentPack isContent, EUseCachePartition isCache,
         EIsCrossLevelPack isCross, EPackKind kind)
     {
@@ -35,14 +39,14 @@ export namespace hooks {
         return  hPackLoaderLoad.call<bool>(pRuntime, path, outPack, isGlobal, isContent, isCache, isCross, kind);
     }
 
-    void __fastcall hkInitGameScript(LPCSTR scriptName, uint8_t flags){
+    inline void __fastcall hkInitGameScript(LPCSTR scriptName, uint8_t flags){
         hInitGameScript.call<void>(scriptName, flags);
         std::println("InitializeGameScript called with params scriptName={} flags={}", scriptName, static_cast<int>(flags));
         std::println("Loading paks!");
         loader::LoadPaks(hAddSource);
     }
 
-    bool Init()
+    inline bool Init()
     {
         HMODULE hFs = GetModuleHandleA("filesystem_x64_rwdi.dll");
         HMODULE hEngine = GetModuleHandleA("engine_x64_rwdi.dll");

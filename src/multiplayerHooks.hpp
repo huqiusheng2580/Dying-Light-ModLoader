@@ -1,33 +1,38 @@
 //
 // Created by Seamus on 29/06/2026.
 //
-module;
+#pragma once
+
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <Windows.h>
-#include <Print>
+#include <cstdio>
+#include <print>
 #include "SafetyHook.hpp"
-export module multiplayerHooks;
+#include "safetyhook_easy_shim.hpp"
 
-safetyhook::InlineHook hFs_check_zip_crc;
-safetyhook::InlineHook hAreDataAuthenticated;
-safetyhook::InlineHook hCalc_file_crc;
+namespace multiplayer {
+    inline safetyhook::InlineHook hFs_check_zip_crc;
+    inline safetyhook::InlineHook hAreDataAuthenticated;
+    inline safetyhook::InlineHook hCalc_file_crc;
 
-bool __fastcall hkFs_check_zip_crc(void* _this){
-    std::println("check_zip_crc called");
-    return true;
-}
+    inline bool __fastcall hkFs_check_zip_crc(void* _this){
+        std::println("check_zip_crc called");
+        return true;
+    }
 
-bool __fastcall hkAreDataAuthenticated(void* _this){
-    std::println("AreDataAuthenticatedToPlayMultiplayer called");
-    return true;
-}
+    inline bool __fastcall hkAreDataAuthenticated(void* _this){
+        std::println("AreDataAuthenticatedToPlayMultiplayer called");
+        return true;
+    }
 
-bool __cdecl hkCalc_file_crc(void* args){
-    std::println("calc_file_crc called");
-    return true;
-}
+    inline bool __cdecl hkCalc_file_crc(void* args){
+        std::println("calc_file_crc called");
+        return true;
+    }
 
-export namespace multiplayer {
-    bool Init()
+    inline bool Init()
     {
         HMODULE hFs = GetModuleHandleA("filesystem_x64_rwdi.dll");
         HMODULE hEngine = GetModuleHandleA("engine_x64_rwdi.dll");
@@ -57,5 +62,3 @@ export namespace multiplayer {
         return true;
     }
 }
-
-

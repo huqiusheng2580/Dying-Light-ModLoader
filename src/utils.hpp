@@ -1,16 +1,19 @@
 //
 // Created by Seamus on 29/06/2026.
 //
-module;
+#pragma once
+
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <Windows.h>
 #include <stdio.h>
 #include <vector>
 #include <filesystem>
 #include <iostream>
-export module utils;
 
-export namespace utils {
-    void InitConsole()
+namespace utils {
+    inline void InitConsole()
     {
         AllocConsole();
 
@@ -20,7 +23,7 @@ export namespace utils {
         freopen_s(&f, "CONIN$", "r", stdin);
     }
 
-    uintptr_t FindPattern(HMODULE hModule, const char* signature)
+    inline uintptr_t FindPattern(HMODULE hModule, const char* signature)
     {
         static auto patternToByte = [](const char* pattern) {
             auto bytes = std::vector<int>{};
@@ -63,7 +66,7 @@ export namespace utils {
         return 0;
     }
 
-    void PatchMemory(uintptr_t address, const std::vector<uint8_t>& bytes)
+    inline void PatchMemory(uintptr_t address, const std::vector<uint8_t>& bytes)
     {
         DWORD oldProtect;
         VirtualProtect((LPVOID)address, bytes.size(), PAGE_EXECUTE_READWRITE, &oldProtect);
@@ -73,10 +76,35 @@ export namespace utils {
         VirtualProtect((LPVOID)address, bytes.size(), oldProtect, &oldProtect);
     }
 
-    std::string GetGameDir()
+    inline std::string GetGameDir()
     {
         char buffer[MAX_PATH];
         GetModuleFileNameA(NULL, buffer, MAX_PATH);
         return std::filesystem::path(buffer).parent_path().string();
+    }
+
+    //build a path from a UTF-8 narrow string (config values may contain non-ASCII chars)
+    inline std::filesystem::path PathFromUtf8(const std::string& s)
+    {
+        int len = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, nullptr, 0);
+        if (len <= 1) return std::filesystem::path(s);
+        std::wstring wide(static_cast<size_t>(len - 1), L'\0');
+        MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, wide.data(), len);
+        return std::filesystem::path(wide);
+    }
+
+    //convert an ANSI (ACP) narrow string to UTF-8
+    inline std::string ToUtf8(const std::string& s)
+    {
+        int wlen = MultiByteToWideChar(CP_ACP, 0, s.c_str(), -1, nullptr, 0);
+        if (wlen <= 1) return s;
+        std::wstring wide(static_cast<size_t>(wlen - 1), L'\0');
+        MultiByteToWideChar(CP_ACP, 0, s.c_str(), -1, wide.data(), wlen);
+
+        int len = WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), -1, nullptr, 0, nullptr, nullptr);
+        if (len <= 1) return s;
+        std::string utf8(static_cast<size_t>(len - 1), '\0');
+        WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), -1, utf8.data(), len, nullptr, nullptr);
+        return utf8;
     }
 }
