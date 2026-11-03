@@ -195,6 +195,8 @@ namespace config {
 
     inline void writeDefault(const std::filesystem::path& path) {
         //NB: built with UTF-8 source/execution charset so these literals are stored as UTF-8
+        std::error_code ec;
+        std::filesystem::create_directories(path.parent_path(), ec); //ini may live inside the mod dir
         std::ofstream out(path, std::ios::binary);
         out << "; CE6ML 配置文件\n"
             << "; 以 ; 或 # 开头的行为注释\n"

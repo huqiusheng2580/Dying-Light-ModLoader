@@ -22,7 +22,7 @@
 namespace loader::detail {
     inline std::filesystem::path modFolderHandler()
     {
-        std::string modDirSetting = config::getString(config::Get(), "paths", "mod_dir").value_or("mods");
+        std::string modDirSetting = config::getString(config::Get(), "paths", "mod_dir").value_or("Game_Mods");
 
         std::filesystem::path modDir = utils::PathFromUtf8(modDirSetting);
         if (modDir.is_relative())
@@ -30,7 +30,7 @@ namespace loader::detail {
 
         if (!std::filesystem::exists(modDir)) {
             std::filesystem::create_directories(modDir);
-            MessageBoxW(nullptr, L"Created mods directory!", L"CE6ML", MB_OK);
+            MessageBoxW(nullptr, L"Created mod directory!", L"CE6ML", MB_OK);
         }
 
         return modDir;

@@ -111,7 +111,7 @@ foreach ($job in $compileJobs) {
     if (Test-Path $obj) {
         $objTime = (Get-Item $obj).LastWriteTime
         $srcTime = (Get-Item $src).LastWriteTime
-        $hdrNewer = ($src -like "$ProjectDir*") -and ($srcHeaders | Where-Object { (Get-Item $_).LastWriteTime -gt $objTime } | Select-Object -First 1)
+        $hdrNewer = ($src -like "$(Join-Path $ProjectDir 'src')*") -and ($srcHeaders | Where-Object { (Get-Item $_).LastWriteTime -gt $objTime } | Select-Object -First 1)
         if ($objTime -ge $srcTime -and -not $hdrNewer) {
             continue
         }
